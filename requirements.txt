@@ -1,0 +1,3 @@
+dspy
+chromadb
+python-dotenv
