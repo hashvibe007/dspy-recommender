@@ -2,3 +2,6 @@
 chroma_db/
 __pycache__/
 .env
+chroma_db/
+chroma_exports/
+qdrant_storage/

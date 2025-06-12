@@ -1,3 +1,6 @@
 dspy
 chromadb
 python-dotenv
+dspy-qdrant
+fastembed
+sentence-transformers

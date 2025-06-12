@@ -1,0 +1,31 @@
+{
+  "collection_name": "products",
+  "total_items": 621,
+  "sample_items": [
+    {
+      "document_preview": "Model: IACS12KA3TGC- 1.0 Ton 3 Star\nCategory: Air Conditioner\nPrice: 32318.0\nMrp: 34750.0\n--- General ---\nIndoor Unit size (W x D x H - mm): 838 x 285 x 207\nOutdoor Unit size (W x D x H - mm): 700  x ...",
+      "metadata": {},
+      "embedding_dimension": 384
+    },
+    {
+      "document_preview": "Model: CI193GN32SGN1\nCategory: None\nPrice: 60000.0\nMrp: None\n--- General ---\nBrand: IFB",
+      "metadata": {},
+      "embedding_dimension": 384
+    },
+    {
+      "document_preview": "Model: CI205GN32RGN1\nCategory: Air Conditioner\nPrice: 77490.0\nMrp: None\n--- General ---\nBrand: IFB\nIndoor Unit size (W x D x H - mm): 1010 x 315 x 220 \nOutdoor Unit size (W x D x H - mm): 780 x 292 x ...",
+      "metadata": {},
+      "embedding_dimension": 384
+    },
+    {
+      "document_preview": "Model: CI145GD21RGN1\nCategory: Air Conditioner\nPrice: 62990.0\nMrp: None\n--- General ---\nBrand: IFB\nIndoor Unit size (W x D x H - mm): 900 x 294 x 206\nOutdoor Unit size (W x D x H - mm): 728 x 256 x 55...",
+      "metadata": {},
+      "embedding_dimension": 384
+    },
+    {
+      "document_preview": "Model:  CI133SL11RGM1 \nCategory: Air Conditioner\nPrice: 52990.0\nMrp: None\n--- General ---\nBrand: IFB\nIndoor Unit size (W x D x H - mm): 770 x 250 x 205\nOutdoor Unit size (W x D x H - mm): 728 x 256 x ...",
+      "metadata": {},
+      "embedding_dimension": 384
+    }
+  ]
+}
