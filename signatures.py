@@ -2,16 +2,29 @@ import dspy
 from typing import Literal, List
 
 class ProductRecommendation(dspy.Signature):
-    product_id: str = dspy.InputField(desc="it is the key of the product e.g 8903287021718")
-    model_name: str = dspy.InputField(desc="it is actual model name of the product e.g TL - RGS 7 kg Aqua")
-    category: Literal["Washing Machine","Refrigerator","Air Conditioner","Dishwasher","Microwave"] = dspy.InputField(desc="Category")
-    recommendation_type: Literal["Up-sell","Cross-sell"] = dspy.InputField(desc="Recommendation type")
-    price: float = dspy.InputField(desc="Price of the product")
-    match_score: float = dspy.InputField(desc="Probability score of the recommendation between 0 and 1")
-    reasons: str = dspy.InputField(desc="Reasons for the recommendation in a single sentence")
-    key_features: list[str] = dspy.InputField(desc="Key features of the products in a list")
-    amazon_review_summary: str = dspy.InputField(desc="Amazon review summary of the product if available")
-    amazon_url: str = dspy.InputField(desc="Amazon product URL if available")
+    product_id: str = dspy.OutputField(desc="it is the key of the product e.g 8903287021718")
+    model_name: str = dspy.OutputField(desc="it is actual model name of the product e.g TL - RGS 7 kg Aqua")
+    category: str = dspy.OutputField(desc="Category")
+    recommendation_type: Literal["Up-sell","Cross-sell"] = dspy.OutputField(desc="Recommendation type")
+    price: float = dspy.OutputField(desc="Price of the product")
+    match_score: float = dspy.OutputField(desc="Probability score of the recommendation between 0 and 1")
+    reasons: str = dspy.OutputField(desc="Reasons for the recommendation in a single sentence")
+    key_features: list[str] = dspy.OutputField(desc="Key features of the products in a list")
+    amazon_review_summary: str = dspy.OutputField(desc="Amazon review summary of the product if available otherwise empty string")
+    amazon_url: str = dspy.OutputField(desc="Amazon product URL if available otherwise empty string don't make any assumptions")
+    
+# Define signatures
+class summariseCustomerHistory(dspy.Signature):
+    """Summarise customer history based on customer details"""
+    customer_message = dspy.InputField(desc="The customer's history")
+    summary = dspy.OutputField(desc="Summary relevant to customer and useful for product recommendation")
+    confidence = dspy.OutputField(desc="Confidence level (high/medium/low)")
+    
+class EnhanceQuestion(dspy.Signature):
+    """Enhance the question to retrieve relevant products, features, details and amazon review summary and url"""
+    question = dspy.InputField(desc="The customer's question")
+    enhanced_question = dspy.OutputField(desc="Enhanced question")
+    confidence = dspy.OutputField(desc="Confidence level (high/medium/low)")
 
 class RecommendProducts(dspy.Signature):
     question: str = dspy.InputField(desc="Question to recommend products")
