@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import dspy
 from product_ingestion import get_product_retriever, get_or_create_chroma_client, get_or_create_collection
 from rag_module import RAG
+import logging
+import requests
 
 # Load environment variables
 load_dotenv()
@@ -21,6 +23,13 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Configure logging
+logging.basicConfig(
+    filename='api.log',
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s'
 )
 
 # Global variables
@@ -59,8 +68,66 @@ async def recommend(request: Request):
     """Endpoint for product recommendations"""
     try:
         data = await request.json()
+        logging.info(f"Received request: {data}")
         result = rag(question=data["question"], customer_id=data["customer_id"])
-        return {
+
+        # Fetch ChromaDB client and collection
+        chroma_client = get_or_create_chroma_client()
+        collection = get_or_create_collection(chroma_client)
+
+        # Overwrite amazon_url in recommendations with value from metadata (prefer material_id if present)
+        for rec in result.recommendations:
+            # Try to fetch by material_id first if available
+            meta = None
+            if hasattr(rec, 'material_id') and rec.material_id:
+                meta = collection.get(where={"material_id": rec.material_id}, include=["metadatas"])
+                if meta and meta["metadatas"] and meta["metadatas"][0].get("amazon_url"):
+                    rec.amazon_url = meta["metadatas"][0]["amazon_url"]
+                    # Also update product_id if needed
+                    if meta["metadatas"][0].get("product_id"):
+                        rec.product_id = meta["metadatas"][0]["product_id"]
+                    # Fetch current price from external API
+                    try:
+                        price_resp = requests.post(
+                            'https://agentapi.ifbanalytics.com/fg-mrp',
+                            headers={'Content-Type': 'application/json'},
+                            json={"model_id": rec.product_id}
+                        )
+                        if price_resp.status_code == 200:
+                            price_data = price_resp.json()
+                            price_str = price_data.get("MRP", "").replace(",", "").replace(".00", "")
+                            try:
+                                rec.price = float(price_str)
+                            except Exception:
+                                rec.price = price_str
+                        else:
+                            rec.price = None
+                    except Exception as ex:
+                        rec.price = None
+                    continue  # Found by material_id, skip product_id lookup
+            # Fallback to product_id
+            meta = collection.get(where={"product_id": rec.product_id}, include=["metadatas"])
+            if meta and meta["metadatas"] and meta["metadatas"][0].get("amazon_url"):
+                rec.amazon_url = meta["metadatas"][0]["amazon_url"]
+            # Fetch current price from external API
+            try:
+                price_resp = requests.post(
+                    'https://agentapi.ifbanalytics.com/fg-mrp',
+                    headers={'Content-Type': 'application/json'},
+                    json={"model_id": rec.product_id}
+                )
+                if price_resp.status_code == 200:
+                    price_data = price_resp.json()
+                    price_str = price_data.get("MRP", "").replace(",", "").replace(".00", "")
+                    try:
+                        rec.price = float(price_str)
+                    except Exception:
+                        rec.price = price_str
+                else:
+                    rec.price = None
+            except Exception as ex:
+                rec.price = None
+        response = {
             "persona_name": result.persona_name,
             "description": result.description,
             "key_characteristics": result.key_characteristics,
@@ -80,7 +147,16 @@ async def recommend(request: Request):
             },
             "recommendations": result.recommendations
         }
+        logging.info(f"Response for customer_id={data['customer_id']}: {response}")
+        # Log DSPy LLM history for debugging hallucinations
+        try:
+            history_str = str(dspy.inspect_history(n=5))
+            logging.info(f"DSPy Inspect History (last 5):\n{history_str}")
+        except Exception as ex:
+            logging.error(f"Error logging DSPy inspect_history: {ex}")
+        return response
     except Exception as e:
+        logging.error(f"Error for request {data if 'data' in locals() else ''}: {str(e)}")
         return {"error": str(e)}
 
 if __name__ == "__main__":

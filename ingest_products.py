@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
-from qdrant import ingest_products
+from product_ingestion import initialize_chroma
 
 def ingest_data():
-    """Ingest products and reviews into Qdrant"""
+    """Ingest products and reviews into ChromaDB"""
     # Get paths
     base_dir = os.path.dirname(os.path.abspath(__file__))
     product_path = os.path.join(base_dir, 'products/products_all.json')
@@ -11,21 +11,14 @@ def ingest_data():
     
     print("Starting data ingestion...")
     
-    # Initialize Qdrant with products and reviews
-    client = ingest_products(
+    # Initialize ChromaDB with products and reviews
+    chroma_client, collection = initialize_chroma(
         product_path=product_path,
         reviews_path=reviews_path
     )
     
-    # Get collection info
-    try:
-        collection_info = client.get_collection("products")
-        points_count = collection_info.points_count if hasattr(collection_info, 'points_count') else 'unknown'
-        print(f"Ingestion complete. Collection has {points_count} items.")
-    except Exception as e:
-        print(f"Error getting collection info: {str(e)}")
-    
-    return client
+    print(f"Ingestion complete. Collection has {collection.count()} items.")
+    return chroma_client, collection
 
 if __name__ == "__main__":
     load_dotenv()

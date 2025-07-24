@@ -7,6 +7,7 @@ from chromadb.utils import embedding_functions
 import json
 from datetime import datetime
 
+
 def flatten_specifications(specs):
     flat_parts = []
     for section, entries in specs.items():
@@ -56,13 +57,14 @@ def load_and_process_products(product_path, reviews_path=None, max_characters=20
             lines.append(flatten_specifications(product["specifications"]))
             
         # Add Amazon reviews if available
-        material_id = product.get('material_id', '')  # Assuming this is the field name
+        material_id = product.get('Material', '') 
         if material_id in reviews_dict:
             lines.append("--- Amazon Reviews ---")
-            lines.append(f"Customer Feedback: {reviews_dict[material_id]['reviews']}")
-            lines.append(f"Amazon URL: {reviews_dict[material_id]['url']}")
+            lines.append(f"Customer Feedback: {reviews_dict[material_id]['AI-reviews']}")
+            lines.append(f"Amazon URL: {reviews_dict[material_id]['Product-url']}")
 
         corpus_text = "\n".join(lines).strip()[:max_characters]
+        print(corpus_text)
         corpus.append(corpus_text)
         
         # Add metadata

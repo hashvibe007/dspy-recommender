@@ -11,6 +11,7 @@ class ProductRecommendation(dspy.Signature):
     reasons: str = dspy.InputField(desc="Reasons for the recommendation in a single sentence")
     key_features: list[str] = dspy.InputField(desc="Key features of the products in a list")
     amazon_review_summary: str = dspy.InputField(desc="Amazon review summary of the product if available")
+    amazon_url: str = dspy.InputField(desc="Amazon product URL if available")
 
 class RecommendProducts(dspy.Signature):
     question: str = dspy.InputField(desc="Question to recommend products")

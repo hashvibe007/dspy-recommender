@@ -68,6 +68,14 @@ def analyze_ingestion(collection_name="products", persist_dir="chroma_db"):
                 print(f"- Metadata fields: {metadata_keys}")
             else:
                 print("- No valid metadata found in sample")
+
+            # Check for Amazon reviews in the entire collection
+            all_data = collection.get(include=["metadatas"])
+            all_metadatas = all_data.get("metadatas", [])
+            total_with_reviews = sum(1 for m in all_metadatas if m and m.get("has_reviews"))
+            total_items = len(all_metadatas)
+            percent = (total_with_reviews / total_items * 100) if total_items else 0
+            print(f"- Products with Amazon reviews in collection: {total_with_reviews} / {total_items} ({percent:.1f}%)")
         else:
             print("- No metadata available")
             
